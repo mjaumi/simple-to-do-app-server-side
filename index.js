@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 const app = express();
@@ -34,6 +34,28 @@ async function run() {
         const query = { user };
         const tasks = await taskCollection.find(query).toArray();
         res.send(tasks);
+    });
+
+    // DELETE API to delete a specific task
+    app.delete('/task/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const deleteResult = await taskCollection.deleteOne(query);
+        res.send(deleteResult);
+    });
+
+    // PATCH API to set a task as completed
+    app.patch('/task/:id', async (req, res) => {
+        const id = req.params.id;
+        const completed = req.body;
+        const filter = { _id: ObjectId(id) };
+        const updatedTask = {
+            $set: {
+                completed: completed.completed
+            }
+        }
+        const updateTask = await taskCollection.updateOne(filter, updatedTask);
+        res.send(updateTask);
     });
 }
 
