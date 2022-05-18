@@ -17,15 +17,23 @@ async function run() {
 
     await client.connect();
 
-    const todoCollection = client.db('todo').collection('tasks');
+    const taskCollection = client.db('todo').collection('tasks');
 
     console.log('MongoDB Connected!');
 
-    //POST API for adding a task to the database
+    // POST API for adding a task to the database
     app.post('/task', async (req, res) => {
         const task = req.body;
-        const addResult = await todoCollection.insertOne(task);
+        const addResult = await taskCollection.insertOne(task);
         res.send(addResult);
+    });
+
+    // GET API for getting all the task added by user
+    app.get('/task', async (req, res) => {
+        const user = req.query.email;
+        const query = { user };
+        const tasks = await taskCollection.find(query).toArray();
+        res.send(tasks);
     });
 }
 
